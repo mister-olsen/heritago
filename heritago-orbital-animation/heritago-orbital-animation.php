@@ -3,7 +3,7 @@
  * Plugin Name:       Heritago - Animação Orbital
  * Plugin URI:        https://github.com/mister-olsen/heritago/
  * Description:       Adiciona um shortcode [animacao_orbital] para mostrar uma animação interativa e personalizável.
- * Version:           1.2.0
+ * Version:           1.3.1
  * Author:            Alexandre Rodrigues
  * Author URI:        https://www.borvo-sc.com/
  * License:           GPL v2 or later
@@ -28,14 +28,12 @@ class Heritago_Orbital_Data {
 add_shortcode(
 	'planeta_orbital',
 	function ( $atts ) {
-		// Define atributos e valores padrão, incluindo os novos para o link.
+		// Atributos para cada planeta (sem link).
 		$atts = shortcode_atts(
 			[
-				'label'        => 'Item',
-				'color'        => '#7B61FF',
-				'icon_svg'     => '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="white" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" /></svg>',
-				'link'         => '#', // Novo atributo para o URL do link.
-				'target_blank' => 'false', // Novo atributo para abrir em nova aba.
+				'label'    => 'Item',
+				'color'    => '#7B61FF',
+				'icon_svg' => '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="white" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" /></svg>',
 			],
 			$atts,
 			'planeta_orbital'
@@ -43,14 +41,11 @@ add_shortcode(
 
 		$encoded_svg = rawurlencode( $atts['icon_svg'] );
 
-		// Adiciona os dados deste planeta ao array estático, incluindo os novos dados.
 		Heritago_Orbital_Data::$planets[] = [
-			'iconSrc'     => 'data:image/svg+xml,' . $encoded_svg,
-			'color'       => sanitize_hex_color( $atts['color'] ),
-			'label'       => sanitize_text_field( $atts['label'] ),
-			'radius'      => 35,
-			'link'        => esc_url_raw( $atts['link'] ), // Adiciona o link de forma segura.
-			'targetBlank' => filter_var( $atts['target_blank'], FILTER_VALIDATE_BOOLEAN ), // Converte "true"/"false" para booleano.
+			'iconSrc' => 'data:image/svg+xml,' . $encoded_svg,
+			'color'   => sanitize_hex_color( $atts['color'] ),
+			'label'   => sanitize_text_field( $atts['label'] ),
+			'radius'  => 35,
 		];
 		return '';
 	}
@@ -58,18 +53,18 @@ add_shortcode(
 
 /**
  * Regista o shortcode principal [animacao_orbital].
- * (O código desta função não precisa de alterações)
  */
 add_shortcode(
 	'animacao_orbital',
 	function ( $atts, $content = null ) {
-		// Enfileira os assets se ainda não foram carregados.
 		if ( ! Heritago_Orbital_Data::$assets_loaded ) {
-			wp_enqueue_style( 'heritago-orbital-style', plugin_dir_url( __FILE__ ) . 'orbital-animation.css', [], '1.2.0' );
-			wp_enqueue_script( 'heritago-orbital-script', plugin_dir_url( __FILE__ ) . 'orbital-animation.js', [ 'jquery', 'elementor-frontend' ], '1.2.0', true );
+			wp_enqueue_style( 'heritago-orbital-style', plugin_dir_url( __FILE__ ) . 'orbital-animation.css', [], '1.3.0' );
+			wp_enqueue_script( 'heritago-orbital-script', plugin_dir_url( __FILE__ ) . 'orbital-animation.js', [ 'jquery', 'elementor-frontend' ], '1.3.0', true );
 			Heritago_Orbital_Data::$assets_loaded = true;
 		}
 
+        // Lógica de processamento de shortcodes aninhados.
+        Heritago_Orbital_Data::$planets = [];
 		do_shortcode( $content );
 
 		$atts = shortcode_atts(
@@ -124,8 +119,7 @@ add_shortcode(
 			</div>
 		</div>
 		<?php
-
-		Heritago_Orbital_Data::$planets = [];
+		
 		return ob_get_clean();
 	}
 );
