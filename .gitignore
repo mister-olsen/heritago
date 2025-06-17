@@ -1,0 +1,33 @@
+# Ficheiros de dependências e builds
+/node_modules
+/vendor
+/dist
+/build
+
+# Ficheiros de log e de sistema
+*.log
+npm-debug.log
+.DS_Store
+Thumbs.db
+
+# Ficheiros de editores de código
+.idea
+.vscode/
+
+# Ficheiros de compressão e pacotes
+*.zip
+*.rar
+*.tgz
+*.gz
+
+# Ignorar o WordPress em si, caso o repositório esteja dentro de uma instalação WP
+/wp-admin/
+/wp-includes/
+/wp-content/plugins/
+/wp-content/themes/
+/wp-content/uploads/
+/wp-config.php
+/.htaccess
+
+# Ignorar ficheiros do próprio Git
+/.git/
