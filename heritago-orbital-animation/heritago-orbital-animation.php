@@ -3,7 +3,7 @@
  * Plugin Name:       Heritago - Animação Orbital
  * Plugin URI:        https://github.com/mister-olsen/heritago/
  * Description:       Adiciona um shortcode [animacao_orbital] para mostrar uma animação interativa e personalizável.
- * Version:           1.1.0
+ * Version:           1.2.0
  * Author:            Alexandre Rodrigues
  * Author URI:        https://www.borvo-sc.com/
  * License:           GPL v2 or later
