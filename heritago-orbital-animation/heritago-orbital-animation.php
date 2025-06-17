@@ -17,83 +17,61 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/**
- * Classe para gerir os dados dos shortcodes aninhados de forma segura,
- * evitando o uso de variáveis globais.
- */
 class Heritago_Orbital_Data {
-	public static $planets      = [];
+	public static $planets       = [];
 	public static $assets_loaded = false;
 }
 
 /**
  * Regista o shortcode aninhado [planeta_orbital].
- * Este shortcode não gera HTML, apenas recolhe dados para o shortcode principal.
  */
 add_shortcode(
 	'planeta_orbital',
 	function ( $atts ) {
-		// Define atributos e valores padrão para cada planeta.
+		// Define atributos e valores padrão, incluindo os novos para o link.
 		$atts = shortcode_atts(
 			[
-				'label'    => 'Item',
-				'color'    => '#7B61FF',
-				'icon_svg' => '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="white" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" /></svg>',
+				'label'        => 'Item',
+				'color'        => '#7B61FF',
+				'icon_svg'     => '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="white" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" /></svg>',
+				'link'         => '#', // Novo atributo para o URL do link.
+				'target_blank' => 'false', // Novo atributo para abrir em nova aba.
 			],
 			$atts,
 			'planeta_orbital'
 		);
 
-		// O SVG precisa de ser codificado para ser usado num data URI.
 		$encoded_svg = rawurlencode( $atts['icon_svg'] );
 
-		// Adiciona os dados deste planeta ao array estático.
+		// Adiciona os dados deste planeta ao array estático, incluindo os novos dados.
 		Heritago_Orbital_Data::$planets[] = [
-			'iconSrc' => 'data:image/svg+xml,' . $encoded_svg,
-			'color'   => sanitize_hex_color( $atts['color'] ),
-			'label'   => sanitize_text_field( $atts['label'] ),
-			'radius'  => 35, // Raio fixo para cada planeta.
+			'iconSrc'     => 'data:image/svg+xml,' . $encoded_svg,
+			'color'       => sanitize_hex_color( $atts['color'] ),
+			'label'       => sanitize_text_field( $atts['label'] ),
+			'radius'      => 35,
+			'link'        => esc_url_raw( $atts['link'] ), // Adiciona o link de forma segura.
+			'targetBlank' => filter_var( $atts['target_blank'], FILTER_VALIDATE_BOOLEAN ), // Converte "true"/"false" para booleano.
 		];
-
-		// Este shortcode não produz output HTML diretamente.
 		return '';
 	}
 );
 
 /**
  * Regista o shortcode principal [animacao_orbital].
- * Este shortcode gera o HTML final e enfileira os assets necessários.
+ * (O código desta função não precisa de alterações)
  */
 add_shortcode(
 	'animacao_orbital',
 	function ( $atts, $content = null ) {
-
-		// PASSO 1: Enfileirar os assets (CSS & JS) apenas quando o shortcode é renderizado.
-		// A flag estática garante que isto só acontece uma vez por página.
+		// Enfileira os assets se ainda não foram carregados.
 		if ( ! Heritago_Orbital_Data::$assets_loaded ) {
-			wp_enqueue_style(
-				'heritago-orbital-style',
-				plugin_dir_url( __FILE__ ) . 'orbital-animation.css',
-				[],
-				'1.1.0'
-			);
-			wp_enqueue_script(
-				'heritago-orbital-script',
-				plugin_dir_url( __FILE__ ) . 'orbital-animation.js',
-				[ 'jquery', 'elementor-frontend' ],
-				'1.1.0',
-				true
-			);
+			wp_enqueue_style( 'heritago-orbital-style', plugin_dir_url( __FILE__ ) . 'orbital-animation.css', [], '1.2.0' );
+			wp_enqueue_script( 'heritago-orbital-script', plugin_dir_url( __FILE__ ) . 'orbital-animation.js', [ 'jquery', 'elementor-frontend' ], '1.2.0', true );
 			Heritago_Orbital_Data::$assets_loaded = true;
 		}
 
-		// PASSO 2: Preparar os dados.
-		// Resetar os planetas para esta instância da animação.
-		Heritago_Orbital_Data::$planets = [];
-		// Processar os shortcodes aninhados, o que irá popular o array de planetas.
 		do_shortcode( $content );
 
-		// PASSO 3: Lidar com os atributos do shortcode principal.
 		$atts = shortcode_atts(
 			[
 				'titulo'               => 'Onde o Património<br>encontra o Futuro.',
@@ -108,7 +86,6 @@ add_shortcode(
 			'animacao_orbital'
 		);
 
-		// PASSO 4: Construir o objeto de configuração JSON.
 		$planets_data = [];
 		$planet_count = count( Heritago_Orbital_Data::$planets );
 		$angle_step   = ( $planet_count > 0 ) ? 360 / $planet_count : 0;
@@ -116,9 +93,7 @@ add_shortcode(
 		foreach ( Heritago_Orbital_Data::$planets as $index => $planet ) {
 			$planets_data[] = array_merge(
 				$planet,
-				[
-					'startAngle' => $index * $angle_step,
-				]
+				[ 'startAngle' => $index * $angle_step, ]
 			);
 		}
 
@@ -133,9 +108,8 @@ add_shortcode(
 			],
 		];
 
-		$json_config = wp_json_encode( $config ); // Usar wp_json_encode é uma boa prática no WordPress.
+		$json_config = wp_json_encode( $config );
 
-		// PASSO 5: Gerar o HTML final com dados seguros.
 		ob_start();
 		?>
 		<link rel="stylesheet" href="https://use.typekit.net/rjg3qcy.css">
@@ -150,6 +124,8 @@ add_shortcode(
 			</div>
 		</div>
 		<?php
+
+		Heritago_Orbital_Data::$planets = [];
 		return ob_get_clean();
 	}
 );
