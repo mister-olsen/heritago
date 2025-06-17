@@ -1,0 +1,14 @@
+/* Ficheiro: orbital-animation.css */
+
+.orbital-animation-container { font-family: "degular", sans-serif; position: relative; display: flex; justify-content: center; align-items: center; width: 100%; min-height: 90vh; overflow: hidden; background-color: #FFFFFF; }
+.orbital-animation-container canvas { position: absolute; top: 0; left: 0; z-index: 1; opacity: 0; transition: opacity 0.5s ease-in-out; cursor: pointer; }
+@keyframes pulse { from { transform: scale(1); } to { transform: scale(1.03); } }
+.orbital-animation-container .central-content { position: relative; z-index: 2; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 9999px; width: 420px; height: 420px; padding: 2rem; background-color: #FDCC00; border: 10px solid #FFFFFF; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.07); box-sizing: border-box; animation: pulse 3s ease-in-out infinite alternate; }
+.orbital-animation-container .central-content h1 { font-size: 2.25rem; font-weight: 600; line-height: 1.2; margin-bottom: 1.5rem; color: #1F2937; }
+.orbital-animation-container .central-content a.orbital-hero-button { display: inline-flex; align-items: center; justify-content: center; padding: 0.75rem 1.5rem; background-color: #FFFFFF; color: #111827; font-weight: 400; border-radius: 0.5rem; text-decoration: none; transition: all 0.3s; }
+.orbital-animation-container .central-content a.orbital-hero-button:hover { background-color: #FF5603; color: #FFFFFF; transform: scale(1.05); }
+@media (max-width: 568px) {
+    .orbital-animation-container .central-content { width: 300px; height: 300px; padding: 1rem; border-width: 8px; }
+    .orbital-animation-container .central-content h1 { font-size: 1.5rem; margin-bottom: 1rem; }
+    .orbital-animation-container .central-content a.orbital-hero-button { padding: 0.6rem 1.2rem; font-size: 0.9rem; }
+}
